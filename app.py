@@ -27,3 +27,6 @@ def pledge_update():
         cur.close()
         return {"people": people}
     return {"message": "Name must not be blank."}
+
+if __name__ == "__main__":
+    app.run(debug=False)

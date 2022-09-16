@@ -22,7 +22,7 @@
             input = document.querySelector("#name");
             name = input.value;
             if (name) {
-                fetch('http://127.0.0.1:5000/api/pledges', {
+                fetch('/api/pledges', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -41,7 +41,7 @@
         }
 
         function refresh() {
-            fetch('http://127.0.0.1:5000/api/pledges')
+            fetch('/api/pledges')
             .then((response) => response.json())
             .then((data) => {
             document.querySelector("#amount").innerHTML = data["people"] * 0.47;
