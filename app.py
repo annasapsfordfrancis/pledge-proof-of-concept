@@ -1,18 +1,15 @@
 from flask import Flask, render_template, request
 import sqlite3
+from flask_sqlalchemy import SQLAlchemy
 import os
 
-# class Config(object):
-#     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-
 app = Flask(__name__)
-env_config = os.getenv("APP_SETTINGS", "config.DevelopmentConfig")
-app.config.from_object(env_config)
+app.config.from_object(os.getenv("APP_SETTINGS", "config.DevelopmentConfig"))
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 @app.route("/")
 def index():
-    secret_key = app.config.get("SECRET_KEY")
-    print(f"The key is {secret_key}")
     return render_template('index.html')
 
 @app.get("/api/pledges")
