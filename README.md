@@ -35,6 +35,38 @@ In terminal with virtual environment (venv) running:
 pip install -r requirements.txt
 ```
 
+## Set up Postgresql
+I've tested this with Postgresql 14, but other versions might work too.
+
+I followed this guide to get things set up on Mac: https://daily-dev-tips.com/posts/installing-postgresql-on-a-mac-with-homebrew/
+
+### Create the database
+```
+psql postgres
+create database pledges;
+```
+
+You can quit the shell with `\q`
+
+### Set up environment variables
+Create a `.env` file in the project root directory with the contents:
+```
+DB_USERNAME = "your_postgresql_username"
+DB_PASSWORD = "your_postgresql_password"
+```
+
+### Create the database table
+```
+python init_db.py
+```
+
+If you want to check if the tables have been set up correctly:
+```
+psql postgres
+\c pledges
+\dt
+```
+
 ## Run the server
 ```
 flask run
