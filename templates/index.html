@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPXimpact Blood Pledge</title>
+</head>
+<body>
+    <h2>Pledge here!</h2>
+    <input type="text" name="name" id="name">
+    <button id="submit">Pledge</button>
+
+    <h2>Progress</h2>
+    <p><span id="amount"></span> liters</p>
+    
+    <script>
+        refresh();
+        document.querySelector("#submit").addEventListener("click", pledge);
+
+        function pledge() {
+            input = document.querySelector("#name");
+            name = input.value;
+            if (name) {
+                fetch('http://127.0.0.1:5000/api/pledges', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({"name": name}),
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    input.value = '';
+                    refresh();
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+
+        function refresh() {
+            fetch('http://127.0.0.1:5000/api/pledges')
+            .then((response) => response.json())
+            .then((data) => {
+            document.querySelector("#amount").innerHTML = data["people"] * 0.47;
+        });
+        }
+    </script>
+</body>
+</html>
