@@ -51,13 +51,17 @@ You can quit the shell with `\q`
 ### Set up environment variables
 Create a `.env` file in the project root directory with the contents:
 ```
-DB_USERNAME = "your_postgresql_username"
-DB_PASSWORD = "your_postgresql_password"
+FLASK_DEBUG=True
+DBNAME="pledges"
+DBHOST="localhost"
+DBUSER = "your_username"
+DBPASS = "your_password"
 ```
 
-### Create the database table
+### Create database migrations
 ```
-python init_db.py
+flask db init
+flask db migrate -m "initial migration"
 ```
 
 If you want to check if the tables have been set up correctly:
@@ -65,6 +69,7 @@ If you want to check if the tables have been set up correctly:
 psql postgres
 \c pledges
 \dt
+\d user
 ```
 
 ## Run the server

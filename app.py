@@ -1,20 +1,39 @@
 from flask import Flask, render_template, request
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
+from datetime import datetime
 import os
-import psycopg2
-from dotenv import load_dotenv
 
-load_dotenv()
+app = Flask(__name__, static_folder="static")
+# csrf = CSRFProtect(app)
 
-app = Flask(__name__)
+# WEBSITE_HOSTNAME exists only in production environment
+if not 'WEBSITE_HOSTNAME' in os.environ:
+   # local development, where we'll use environment variables
+   print("Loading config.development and environment variables from .env file.")
+   app.config.from_object('azureproject.development')
+else:
+   # production
+   print("Loading config.production.")
+   app.config.from_object('azureproject.production')
 
-def get_db_connection():
-    con = psycopg2.connect(
-    host = "localhost",
-    database = "pledges",
-    user = os.environ["DB_USERNAME"],
-    password = os.environ["DB_PASSWORD"]
-    )
-    return con
+app.config.update(
+    SQLALCHEMY_DATABASE_URI=app.config.get('DATABASE_URI'),
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+)
+
+# Initialize the database connection
+db = SQLAlchemy(app)
+
+# Enable Flask-Migrate commands "flask db init/migrate/upgrade" to work
+migrate = Migrate(app, db)
+
+# Create databases, if databases exists doesn't issue create
+# For schema changes, run "flask db migrate"
+from models import User
+db.create_all()
+db.session.commit()
 
 @app.route("/")
 def index():
@@ -22,29 +41,25 @@ def index():
 
 @app.get("/api/pledges")
 def pledge_read():
-    con = get_db_connection()
-    cur = con.cursor()
-    cur.execute("SELECT COUNT(name) FROM people;")
-    people = cur.fetchone()[0]
-    if not people:
-        people = 0
-    cur.close()
-    con.close()
+    from models import User
+    people = User.query.count()
     print(f"people: {people}")
     return {"people": people}
 
 @app.post("/api/pledges")
 def pledge_update():
-    name = request.get_json()["name"]
-    if name:
-        con = get_db_connection()
-        cur = con.cursor()
-        cur.execute(f"INSERT INTO people (name) VALUES ('{name}')")
-        con.commit()
-        cur.execute("SELECT COUNT(name) FROM people")
-        people = cur.fetchone()[0]
-        cur.close()
-        con.close()
+    from models import User
+    try:
+        name = request.get_json()["name"]
+    except(KeyError):
+        return {"error_message": "Name must not be blank."}
+    else:
+        user = User()
+        user.name = name
+        db.session.add(user)
+        db.session.commit()
+
+        people = User.query.count()
         return {"people": people}
     return {"message": "Name must not be blank."}
 

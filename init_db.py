@@ -7,8 +7,8 @@ load_dotenv()
 con = psycopg2.connect(
     host = "localhost",
     database = "pledges",
-    user = os.environ["DB_USERNAME"],
-    password = os.environ["DB_PASSWORD"]
+    user = os.environ["DBUSER"],
+    password = os.environ["DBPASS"]
 )
 
 cur = con.cursor()
